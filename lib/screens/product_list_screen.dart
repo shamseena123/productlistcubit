@@ -3,6 +3,8 @@ import 'package:product_list_app/screens/product_detail_screen.dart';
 import 'package:product_list_app/widgets/product_card.dart';
 import '../models/product_model.dart';
 import '../services/api_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:product_list_app/widgets/error_retry_widget.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -29,7 +31,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   void initState() {
     super.initState();
-    futureProducts = ApiService().fetchProducts();
+    checkInternetAndFetch();
   }
 
   void searchProducts(String query) {
@@ -64,6 +66,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
     });
   }
 
+  void checkInternetAndFetch() async {
+    final result = await Connectivity().checkConnectivity();
+
+    if (result == ConnectivityResult.none) {
+      setState(() {
+        futureProducts = Future.error("No Internet Connection");
+      });
+      return;
+    }
+    setState(() {
+      futureProducts = ApiService().fetchProducts();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,28 +105,41 @@ class _ProductListScreenState extends State<ProductListScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            String message = "Something went wrong";
 
-                children: [
-                  Text("Error:${snapshot.error}"),
-                  const SizedBox(height: 20),
+            if (snapshot.error.toString().contains("ClientException") ||
+                snapshot.error.toString().contains("SocketException")) {
+              message = "No internet connection";
+            }
 
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        futureProducts = ApiService().fetchProducts();
-                      });
-                    },
-                    child: const Text("retry"),
-                  ),
-                ],
-              ),
+            return ErrorRetryWidget(
+              message: message,
+              onRetry: checkInternetAndFetch,
             );
           }
+
+          // if (snapshot.hasError) {
+          //   return Center(
+          //     child: Column(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+
+          //       children: [
+          //         Text("Error:${snapshot.error}"),
+          //         const SizedBox(height: 20),
+
+          //         ElevatedButton(
+          //           onPressed: () {
+          //             setState(() {
+          //               checkInternetAndFetch();
+          //             });
+          //           },
+          //           child: const Text("retry"),
+          //         ),
+          //       ],
+          //     ),
+          //   );
+          // }
 
           if (!snapshot.hasData) {
             return Center(child: Text("No product found"));
