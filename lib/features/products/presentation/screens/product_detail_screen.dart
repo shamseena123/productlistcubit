@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/product_model.dart';
+import '../../data/models/product_model.dart';
+// import '../../../../core/utils/price_formatter.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final ProductModel product;
@@ -47,7 +48,7 @@ class ProductDetailScreen extends StatelessWidget {
             const SizedBox(height: 10),
 
             Text(
-              "Price:${product.price}",
+              "Price: PriceFormatter.format(product.price)",
               style: const TextStyle(fontSize: 12),
             ),
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/product_model.dart';
+import 'package:product_list_app/features/products/data/models/product_model.dart';
+import '../../../../core/utils/price_formatter.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
@@ -25,7 +26,7 @@ class ProductCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("${product.price}"),
+            Text(PriceFormatter.format(product.price)),
             Text(product.category),
             Row(
               children: [
