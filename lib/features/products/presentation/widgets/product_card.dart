@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:product_list_app/features/cart/data/cart_model.dart';
+import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
 import 'package:product_list_app/features/products/data/models/product_model.dart';
 import '../../../../core/utils/price_formatter.dart';
 
@@ -35,6 +39,18 @@ class ProductCard extends StatelessWidget {
               ],
             ),
           ],
+        ),
+        trailing: ElevatedButton(
+          onPressed: () {
+            final cartCubit = context.read<CartCubit>();
+
+            cartCubit.addToCart(CartModel(product: product));
+            // context.read<CartCubit>().addToCart(CartModel(product: product));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("${product.title}Added to Cart")),
+            );
+          },
+          child: const Text("Add to Cart"),
         ),
       ),
     );

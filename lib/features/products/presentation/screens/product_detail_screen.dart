@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:product_list_app/core/utils/price_formatter.dart';
 import '../../data/models/product_model.dart';
-// import '../../../../core/utils/price_formatter.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final ProductModel product;
@@ -12,25 +12,19 @@ class ProductDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 50,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Text(
-              "PRODUCT DETAILS",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
+        centerTitle: true,
 
         backgroundColor: const Color.fromARGB(255, 93, 171, 109),
-      ),
 
+        title: const Text(
+          "PRODUCT DETAILS",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
 
@@ -48,7 +42,7 @@ class ProductDetailScreen extends StatelessWidget {
             const SizedBox(height: 10),
 
             Text(
-              "Price: PriceFormatter.format(product.price)",
+              "Price: ${PriceFormatter.format(product.price)}",
               style: const TextStyle(fontSize: 12),
             ),
 

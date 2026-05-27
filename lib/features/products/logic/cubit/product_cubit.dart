@@ -82,4 +82,9 @@ class ProductCubit extends Cubit<ProductState> {
       );
     }
   }
+
+  Future<void> refreshProducts() async {
+    await loadProducts();
+    resetFilters();
+  }
 }

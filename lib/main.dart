@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
 import 'package:product_list_app/features/products/data/repositories/product_repository.dart';
 import 'package:product_list_app/features/products/data/services/api_service.dart';
 import 'package:product_list_app/features/products/logic/cubit/product_cubit.dart';
@@ -19,8 +20,11 @@ class MyApp extends StatelessWidget {
     final apiService = ApiService();
 
     final repository = ProductRepository(apiService: apiService);
-    return BlocProvider(
-      create: (context) => ProductCubit(repository),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => ProductCubit(repository)),
+        BlocProvider(create: (context) => CartCubit()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Product List APP',

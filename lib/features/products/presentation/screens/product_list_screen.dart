@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:product_list_app/features/cart/presentation/cart_screen.dart';
 
 import 'package:product_list_app/features/products/presentation/screens/product_detail_screen.dart';
 import 'package:product_list_app/features/products/presentation/widgets/product_card.dart';
@@ -57,6 +58,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CartScreen()),
+              );
+            },
+          ),
+        ],
       ),
 
       body: BlocBuilder<ProductCubit, ProductState>(
@@ -80,7 +92,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
           if (state is ProductLoaded) {
             categories = [
               "All",
-              ...state.products.map((p) => p.category).toSet(),
+              ...state.products.map((p) => p.category).toSet().toList(),
             ];
             return Column(
               children: [
@@ -126,30 +138,42 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
                 // PRODUCT LIST
                 Expanded(
-                  child: state.filteredProducts.isEmpty
-                      ? const Center(child: Text("No product found"))
-                      : ListView.builder(
-                          itemCount: state.filteredProducts.length,
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await context.read<ProductCubit>().refreshProducts();
+                    },
+                    child: state.filteredProducts.isEmpty
+                        ? ListView(
+                            children: const [
+                              SizedBox(
+                                height: 300,
+                                child: Center(child: Text("No product found")),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            itemCount: state.filteredProducts.length,
 
-                          itemBuilder: (context, index) {
-                            final product = state.filteredProducts[index];
+                            itemBuilder: (context, index) {
+                              final product = state.filteredProducts[index];
 
-                            return ProductCard(
-                              product: product,
+                              return ProductCard(
+                                product: product,
 
-                              onTap: () {
-                                Navigator.push(
-                                  context,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
 
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        ProductDetailScreen(product: product),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          ProductDetailScreen(product: product),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                  ),
                 ),
               ],
             );
