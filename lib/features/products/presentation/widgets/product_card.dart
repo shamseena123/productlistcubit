@@ -4,7 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product_list_app/features/cart/data/cart_model.dart';
 import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
 import 'package:product_list_app/features/products/data/models/product_model.dart';
-import '../../../../core/utils/price_formatter.dart';
+import 'package:product_list_app/core/utils/price_formatter.dart';
+
+import 'package:product_list_app/features/whislist/logic/wishlist_cubit.dart';
+import 'package:product_list_app/features/whislist/logic/wishlist_state.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
@@ -16,10 +19,15 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-
       child: ListTile(
         onTap: onTap,
-        leading: Image.network(product.image, width: 50, height: 50),
+
+        leading: Image.network(
+          product.image,
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+        ),
 
         title: Text(
           product.title,
@@ -40,17 +48,43 @@ class ProductCard extends StatelessWidget {
             ),
           ],
         ),
-        trailing: ElevatedButton(
-          onPressed: () {
-            final cartCubit = context.read<CartCubit>();
 
-            cartCubit.addToCart(CartModel(product: product));
-            // context.read<CartCubit>().addToCart(CartModel(product: product));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("${product.title}Added to Cart")),
-            );
-          },
-          child: const Text("Add to Cart"),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// ❤️ WISHLIST BUTTON
+            BlocBuilder<WishlistCubit, WishlistState>(
+              builder: (context, state) {
+                bool isInWishlist = false;
+
+                if (state is WishListUpdated) {
+                  isInWishlist = state.items.any(
+                    (item) => item.id == product.id,
+                  );
+                }
+
+                return IconButton(
+                  icon: Icon(
+                    isInWishlist ? Icons.favorite : Icons.favorite_border,
+                    color: Colors.red,
+                  ),
+                  onPressed: () {
+                    context.read<WishlistCubit>().toggleWishlist(product);
+                  },
+                );
+              },
+            ),
+
+            /// 🛒 CART BUTTON
+            ElevatedButton(
+              onPressed: () {
+                context.read<CartCubit>().addToCart(
+                  CartModel(product: product),
+                );
+              },
+              child: const Text("Add to Cart"),
+            ),
+          ],
         ),
       ),
     );

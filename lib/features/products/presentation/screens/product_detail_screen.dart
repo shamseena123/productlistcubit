@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:product_list_app/core/utils/price_formatter.dart';
+
 import '../../data/models/product_model.dart';
 
 class ProductDetailScreen extends StatelessWidget {
