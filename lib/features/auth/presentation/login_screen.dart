@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:product_list_app/features/auth/logic/cubit/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,14 +11,38 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  String? emailError;
+  String? passwordError;
   final emailController = TextEditingController();
 
   final passwordContoller = TextEditingController();
 
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  bool isValidPassword(String password) {
+    final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$');
+    return passwordRegex.hasMatch(password);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login"), centerTitle: true),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF7C3AED),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          "LOGIN ",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
 
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -26,9 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: "Enter Email",
                 border: OutlineInputBorder(),
+                errorText: emailError,
               ),
             ),
             const SizedBox(height: 20),
@@ -39,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: InputDecoration(
                 hintText: "Enter Password",
                 border: OutlineInputBorder(),
+                errorText: passwordError,
               ),
             ),
             const SizedBox(height: 30),
@@ -47,6 +74,30 @@ class _LoginScreenState extends State<LoginScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  final email = emailController.text.trim();
+                  final password = passwordContoller.text.trim();
+
+                  setState(() {
+                    emailError = null;
+                    passwordError = null;
+                  });
+
+                  if (!isValidEmail(email)) {
+                    setState(() {
+                      emailError =
+                          "Enter valid email (example: test@gmail.com)";
+                    });
+                    return;
+                  }
+
+                  if (!isValidPassword(password)) {
+                    setState(() {
+                      passwordError =
+                          "Password must be 6+ chars with letter & number";
+                    });
+                    return;
+                  }
+
                   await context.read<AuthCubit>().login();
                 },
                 child: const Text("Login"),

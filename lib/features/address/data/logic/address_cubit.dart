@@ -9,56 +9,56 @@ abstract class AddressState {}
 class AddressInitial extends AddressState {}
 
 class AddressLoaded extends AddressState {
-  final AddressModel? address;
+  final List<AddressModel> addresses;
 
-  AddressLoaded(this.address);
+  AddressLoaded(this.addresses);
 }
 
 /// CUBIT
 class AddressCubit extends Cubit<AddressState> {
   AddressCubit() : super(AddressInitial()) {
-    loadAddress();
+    loadAddresses();
   }
 
   static const String boxName = 'addressBox';
-  static const String key = 'saved_address';
+  static const String key = 'saved_addresses';
 
-  AddressModel? _address;
+  List<AddressModel> _addresses = [];
 
-  AddressModel? get address => _address;
+  List<AddressModel> get addresses => _addresses;
 
-  /// LOAD ADDRESS
-  Future<void> loadAddress() async {
+  /// LOAD ALL ADDRESSES
+  Future<void> loadAddresses() async {
     final box = Hive.box(boxName);
 
     final data = box.get(key);
 
-    if (data != null && data is AddressModel) {
-      _address = data;
+    if (data != null) {
+      _addresses = List<AddressModel>.from(data);
     }
 
-    emit(AddressLoaded(_address));
+    emit(AddressLoaded(_addresses));
   }
 
-  /// SAVE ADDRESS
+  /// ADD ADDRESS
   Future<void> saveAddress(AddressModel address) async {
     final box = Hive.box(boxName);
 
-    await box.put(key, address);
+    _addresses.add(address);
 
-    _address = address;
+    await box.put(key, _addresses);
 
-    emit(AddressLoaded(_address));
+    emit(AddressLoaded(_addresses));
   }
 
-  /// CLEAR ADDRESS
-  Future<void> clearAddress() async {
+  /// DELETE ADDRESS
+  Future<void> deleteAddress(int index) async {
     final box = Hive.box(boxName);
 
-    await box.delete(key);
+    _addresses.removeAt(index);
 
-    _address = null;
+    await box.put(key, _addresses);
 
-    emit(AddressLoaded(null));
+    emit(AddressLoaded(_addresses));
   }
 }

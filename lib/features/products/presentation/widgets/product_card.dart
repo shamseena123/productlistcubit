@@ -18,73 +18,145 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: ListTile(
+      elevation: 6,
+      shadowColor: Colors.black12,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
 
-        leading: Image.network(
-          product.image,
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
-        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// IMAGE
+              SizedBox(
+                height: 120,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          product.image,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
 
-        title: Text(
-          product.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: BlocBuilder<WishlistCubit, WishlistState>(
+                        builder: (context, state) {
+                          bool isFav = false;
 
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(PriceFormatter.format(product.price)),
-            Text(product.category),
-            Row(
-              children: [
-                const Icon(Icons.star, size: 18),
-                Text("${product.rating}"),
-              ],
-            ),
-          ],
-        ),
+                          if (state is WishListUpdated) {
+                            isFav = state.items.any((e) => e.id == product.id);
+                          }
 
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            /// ❤️ WISHLIST BUTTON
-            BlocBuilder<WishlistCubit, WishlistState>(
-              builder: (context, state) {
-                bool isInWishlist = false;
+                          return CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.white,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              iconSize: 18,
+                              icon: Icon(
+                                isFav ? Icons.favorite : Icons.favorite_border,
+                                color: const Color(0xFF7C3AED),
+                              ),
+                              onPressed: () {
+                                context.read<WishlistCubit>().toggleWishlist(
+                                  product,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-                if (state is WishListUpdated) {
-                  isInWishlist = state.items.any(
-                    (item) => item.id == product.id,
-                  );
-                }
+              const SizedBox(height: 8),
 
-                return IconButton(
-                  icon: Icon(
-                    isInWishlist ? Icons.favorite : Icons.favorite_border,
-                    color: Colors.red,
-                  ),
+              /// TITLE
+              Text(
+                product.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              /// PRICE
+              Text(
+                PriceFormatter.format(product.price),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF16A34A),
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              /// RATING
+              Row(
+                children: [
+                  const Icon(Icons.star, color: Colors.orange, size: 16),
+                  const SizedBox(width: 4),
+                  Text("${product.rating}"),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              /// BUTTON
+              SizedBox(
+                width: double.infinity,
+                height: 38,
+                child: ElevatedButton.icon(
                   onPressed: () {
-                    context.read<WishlistCubit>().toggleWishlist(product);
+                    context.read<CartCubit>().addToCart(
+                      CartModel(product: product),
+                    );
                   },
-                );
-              },
-            ),
-
-            /// 🛒 CART BUTTON
-            ElevatedButton(
-              onPressed: () {
-                context.read<CartCubit>().addToCart(
-                  CartModel(product: product),
-                );
-              },
-              child: const Text("Add to Cart"),
-            ),
-          ],
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7C3AED),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: const Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    "Add to Cart",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

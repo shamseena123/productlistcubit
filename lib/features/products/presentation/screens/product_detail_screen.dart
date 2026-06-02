@@ -15,7 +15,9 @@ class ProductDetailScreen extends StatelessWidget {
         toolbarHeight: 50,
         centerTitle: true,
 
-        backgroundColor: const Color.fromARGB(255, 93, 171, 109),
+       backgroundColor: const Color(0xFF7C3AED),
+        foregroundColor: Colors.white,
+        elevation: 0,
 
         title: const Text(
           "PRODUCT DETAILS",

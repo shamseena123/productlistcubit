@@ -39,6 +39,13 @@ class _AddressScreenState extends State<AddressScreen> {
 
     context.read<AddressCubit>().saveAddress(address);
 
+    /// CLEAR FORM
+    nameController.clear();
+    phoneController.clear();
+    streetController.clear();
+    cityController.clear();
+    pincodeController.clear();
+
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Address Saved')));
@@ -47,20 +54,22 @@ class _AddressScreenState extends State<AddressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Address')),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF7C3AED),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          "ADDRESS",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
 
       body: BlocBuilder<AddressCubit, AddressState>(
         builder: (context, state) {
-          if (state is AddressLoaded && state.address != null) {
-            final address = state.address!;
-
-            nameController.text = address.name;
-            phoneController.text = address.phone;
-            streetController.text = address.street;
-            cityController.text = address.city;
-            pincodeController.text = address.pincode;
-          }
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(

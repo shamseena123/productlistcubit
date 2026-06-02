@@ -11,15 +11,18 @@ class ProductCubit extends Cubit<ProductState> {
 
   List<ProductModel> _allProducts = [];
 
+  String _selectedCategory = "All";
+  String _selectedSort = "None";
+  String _searchQuery = "";
+
+  /// LOAD PRODUCTS
   Future<void> loadProducts() async {
     emit(ProductLoading());
 
     try {
       _allProducts = await repository.getProduct();
 
-      emit(
-        ProductLoaded(products: _allProducts, filteredProducts: _allProducts),
-      );
+      _applyFilters();
     } catch (e) {
       if (e is Failure) {
         emit(ProductError(e.message));
@@ -29,62 +32,70 @@ class ProductCubit extends Cubit<ProductState> {
     }
   }
 
+  /// CORE FILTER ENGINE (CATEGORY + SEARCH + SORT)
+  void _applyFilters() {
+    List<ProductModel> filtered = List.from(_allProducts);
+
+    /// CATEGORY FILTER
+    if (_selectedCategory != "All") {
+      filtered = filtered
+          .where((p) => p.category == _selectedCategory)
+          .toList();
+    }
+
+    /// SEARCH FILTER
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered
+          .where(
+            (p) => p.title.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
+          .toList();
+    }
+
+    /// SORT FILTER
+    if (_selectedSort == "Low to High") {
+      filtered.sort((a, b) => a.price.compareTo(b.price));
+    } else if (_selectedSort == "High to Low") {
+      filtered.sort((a, b) => b.price.compareTo(a.price));
+    }
+
+    emit(ProductLoaded(products: _allProducts, filteredProducts: filtered));
+  }
+
+  /// SEARCH
   void searchProducts(String query) {
-    if (state is ProductLoaded) {
-      final current = state as ProductLoaded;
-      final filtered = current.products
-          .where((p) => p.title.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-
-      emit(
-        ProductLoaded(products: current.products, filteredProducts: filtered),
-      );
-    }
+    _searchQuery = query;
+    _applyFilters();
   }
 
+  /// CATEGORY
   void filteredCategory(String category) {
-    if (state is ProductLoaded) {
-      final current = state as ProductLoaded;
-
-      final filtered = current.products
-          .where((p) => p.category == category)
-          .toList();
-      emit(
-        ProductLoaded(products: current.products, filteredProducts: filtered),
-      );
-    }
+    _selectedCategory = category;
+    _applyFilters();
   }
 
+  /// SORT LOW → HIGH
   void sortLowToHigh() {
-    if (state is ProductLoaded) {
-      final current = state as ProductLoaded;
-
-      final sorted = List<ProductModel>.from(current.filteredProducts)
-        ..sort((a, b) => a.price.compareTo(b.price));
-      emit(ProductLoaded(products: current.products, filteredProducts: sorted));
-    }
+    _selectedSort = "Low to High";
+    _applyFilters();
   }
 
+  /// SORT HIGH → LOW
   void sortHighToLow() {
-    if (state is ProductLoaded) {
-      final current = state as ProductLoaded;
-
-      final sorted = List<ProductModel>.from(current.filteredProducts)
-        ..sort((a, b) => b.price.compareTo(a.price));
-      emit(ProductLoaded(products: current.products, filteredProducts: sorted));
-    }
+    _selectedSort = "High to Low";
+    _applyFilters();
   }
 
+  /// RESET ALL FILTERS
   void resetFilters() {
-    if (_allProducts.isNotEmpty) {
-      emit(
-        ProductLoaded(products: _allProducts, filteredProducts: _allProducts),
-      );
-    }
+    _selectedCategory = "All";
+    _selectedSort = "None";
+    _searchQuery = "";
+    _applyFilters();
   }
 
+  /// REFRESH
   Future<void> refreshProducts() async {
     await loadProducts();
-    resetFilters();
   }
 }

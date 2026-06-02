@@ -8,6 +8,7 @@ class AuthCubit extends Cubit<bool> {
   //LOGIN
   Future<void> login() async {
     await storageService.saveBool("isLoggedIn", true);
+     
     emit(true);
   }
 

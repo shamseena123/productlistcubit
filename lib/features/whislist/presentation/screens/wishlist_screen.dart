@@ -9,7 +9,19 @@ class WishlistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Your Wishlist")),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF7C3AED),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          "YOUR WISHLIST",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
 
       body: BlocBuilder<WishlistCubit, WishlistState>(
         builder: (context, state) {

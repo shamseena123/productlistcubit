@@ -76,6 +76,25 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
+  Future<void> checkout() async {
+    try {
+      if (_cartItems.isEmpty) return;
+
+    
+      await Future.delayed(const Duration(seconds: 1));
+
+      _cartItems.clear();
+
+      
+      await saveCart(_cartItems);
+
+     
+      emit(CartEmpty());
+    } catch (e) {
+      emit(CartError("Checkout failed"));
+    }
+  }
+
   double get subtotal {
     return _cartItems.fold(
       0,

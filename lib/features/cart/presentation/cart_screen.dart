@@ -10,6 +10,9 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF7C3AED),
+        foregroundColor: Colors.white,
+        elevation: 0,
         title: const Text(
           "MY CART",
           style: TextStyle(
@@ -19,16 +22,25 @@ class CartScreen extends StatelessWidget {
           ),
         ),
       ),
+
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
           if (state is CartEmpty || state is CartInitial) {
-            return const Center(child: Text("Your Cart is Empty"));
+            return const Center(
+              child: Text(
+                "Your Cart is Empty 🛒",
+                style: TextStyle(fontSize: 16),
+              ),
+            );
           }
+
           if (state is CartUpdated) {
             final items = state.items;
+            final cubit = context.read<CartCubit>();
 
             return Column(
               children: [
+                /// 🛒 CART LIST
                 Expanded(
                   child: ListView.builder(
                     itemCount: items.length,
@@ -45,42 +57,32 @@ class CartScreen extends StatelessWidget {
                           ),
 
                           title: Text(
-                            "₹${item.product.price.toString()} x ${item.quantity}",
+                            "₹${item.product.price} x ${item.quantity}",
                           ),
 
-                          //ACTION BUTTON
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              //DECREASE
                               IconButton(
                                 icon: const Icon(Icons.remove),
                                 onPressed: () {
-                                  context.read<CartCubit>().decreaseQuantity(
-                                    item.product.id,
-                                  );
+                                  cubit.decreaseQuantity(item.product.id);
                                 },
                               ),
 
                               Text("${item.quantity}"),
 
-                              //Increase
                               IconButton(
                                 icon: const Icon(Icons.add),
                                 onPressed: () {
-                                  context.read<CartCubit>().increaseQuantity(
-                                    item.product.id,
-                                  );
+                                  cubit.increaseQuantity(item.product.id);
                                 },
                               ),
 
-                              //Remove
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 onPressed: () {
-                                  context.read<CartCubit>().removeFromCart(
-                                    item.product.id,
-                                  );
+                                  cubit.removeFromCart(item.product.id);
                                 },
                               ),
                             ],
@@ -91,38 +93,85 @@ class CartScreen extends StatelessWidget {
                   ),
                 ),
 
+                /// 💰 TOTAL + CHECKOUT SECTION
                 Container(
                   padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(12),
                   ),
-
-                  margin: const EdgeInsets.all(10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Subtotal: ₹${context.read<CartCubit>().subtotal.toStringAsFixed(2)}",
-                      ),
+                      Text("Subtotal: ₹${cubit.subtotal.toStringAsFixed(2)}"),
+                      const SizedBox(height: 5),
+
+                      Text("VAT (5%): ₹${cubit.vat.toStringAsFixed(2)}"),
                       const SizedBox(height: 5),
 
                       Text(
-                        "Vat(5%): ₹${context.read<CartCubit>().vat.toStringAsFixed(2)}",
-                      ),
-                      const SizedBox(height: 5),
-
-                      Text(
-                        "Delivery: ₹${context.read<CartCubit>().deliveryCharge.toStringAsFixed(2)}",
+                        "Delivery: ₹${cubit.deliveryCharge.toStringAsFixed(2)}",
                       ),
 
                       const Divider(),
 
                       Text(
-                        "Grand Total: ₹${context.read<CartCubit>().grandtotal.toStringAsFixed(2)}",
+                        "Grand Total: ₹${cubit.grandtotal.toStringAsFixed(2)}",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      /// 🧾 CHECKOUT BUTTON (WITH CONFIRM DIALOG)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("Confirm Order"),
+                                  content: Text(
+                                    "Total Amount: ₹${cubit.grandtotal.toStringAsFixed(2)}",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Cancel"),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+
+                                        await cubit.checkout();
+
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Order placed successfully 🎉",
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text("Confirm"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Text(
+                            "Checkout (₹${cubit.grandtotal.toStringAsFixed(2)})",
+                          ),
                         ),
                       ),
                     ],
@@ -131,6 +180,7 @@ class CartScreen extends StatelessWidget {
               ],
             );
           }
+
           return const SizedBox();
         },
       ),
