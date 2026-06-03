@@ -19,10 +19,12 @@ class CartModel {
   }
 
   
-  factory CartModel.fromJson(Map<String, dynamic> json) {
-    return CartModel(
-      product: ProductModel.fromJson(json['product']),
-      quantity: json['quantity'] ?? 1,
-    );
-  }
+ factory CartModel.fromJson(Map json) {
+  return CartModel(
+    product: ProductModel.fromJson(
+      Map<String, dynamic>.from(json['product']),
+    ),
+    quantity: json['quantity'] ?? 1,
+  );
+}
 }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
 import 'package:product_list_app/features/cart/logic/cart_state.dart';
+import 'package:product_list_app/features/orders/data/order_model.dart';
+import 'package:product_list_app/features/orders/logic/orders_cubit.dart';
+import 'package:product_list_app/features/orders/presentation/order_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -160,19 +163,56 @@ class CartScreen extends StatelessWidget {
                                     ),
                                     ElevatedButton(
                                       onPressed: () async {
-                                        Navigator.pop(context);
+                                        print("CONFIRM CLICKED");
 
-                                        await cubit.checkout();
-
-                                        ScaffoldMessenger.of(
+                                        final messenger = ScaffoldMessenger.of(
                                           context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              "Order placed successfully 🎉",
-                                            ),
-                                          ),
                                         );
+                                        final navigator = Navigator.of(context);
+
+                                        final cartCubit = context
+                                            .read<CartCubit>();
+                                        final ordersCubit = context
+                                            .read<OrdersCubit>();
+
+                                        final order = OrderModel(
+                                          items: cartCubit.cartItems,
+                                          totalPrice: cartCubit.grandtotal,
+                                          dateTime: DateTime.now(),
+                                        );
+
+                                        try {
+                                          await ordersCubit.addOrder(order);
+                                          await cartCubit.checkout();
+
+                                          navigator
+                                              .pop(); // close dialog AFTER logic
+
+                                          messenger.showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                "Order placed successfully 🎉",
+                                              ),
+                                            ),
+                                          );
+
+                                          navigator.push(
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const OrdersScreen(),
+                                            ),
+                                          );
+                                        } catch (e) {
+                                          print("CHECKOUT ERROR: $e");
+
+                                          messenger.showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                "Something went wrong ❌",
+                                              ),
+                                            ),
+                                          );
+                                        }
                                       },
                                       child: const Text("Confirm"),
                                     ),

@@ -9,6 +9,16 @@ class CartCubit extends Cubit<CartState> {
     initializeUserCart();
   }
 
+  final Box cartBox = Hive.box('cartBox');
+  final LocalStorageServices storageService = LocalStorageServices();
+
+  final List<CartModel> _cartItems = [];
+
+  String _cartKey = "cartItems";
+
+  // ✅ STEP 1: expose cart items for Orders feature
+  List<CartModel> get cartItems => List.from(_cartItems);
+
   void loadCart() {
     _cartItems.clear();
     final savedItems = cartBox.get(_cartKey);
@@ -24,12 +34,6 @@ class CartCubit extends Cubit<CartState> {
       emit(CartEmpty());
     }
   }
-
-  final Box cartBox = Hive.box('cartBox');
-
-  final LocalStorageServices storageService = LocalStorageServices();
-
-  String _cartKey = "cartItems";
 
   Future<void> initializeUserCart() async {
     final currentUser = await storageService.getString("currentUser");
@@ -48,8 +52,6 @@ class CartCubit extends Cubit<CartState> {
     await cartBox.put(_cartKey, items.map((e) => e.toJson()).toList());
   }
 
-  final List<CartModel> _cartItems = [];
-
   Future<void> addToCart(CartModel newItem) async {
     try {
       final index = _cartItems.indexWhere(
@@ -61,6 +63,7 @@ class CartCubit extends Cubit<CartState> {
       } else {
         _cartItems.add(newItem);
       }
+
       await saveCart(_cartItems);
       emit(CartUpdated(List.from(_cartItems)));
     } catch (e) {
@@ -85,6 +88,7 @@ class CartCubit extends Cubit<CartState> {
       if (_cartItems[index].quantity > 1) {
         _cartItems[index].quantity--;
       }
+
       await saveCart(_cartItems);
       emit(CartUpdated(List.from(_cartItems)));
     }
@@ -92,15 +96,17 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> removeFromCart(int productId) async {
     _cartItems.removeWhere((item) => item.product.id == productId);
+
+    await saveCart(_cartItems);
+
     if (_cartItems.isEmpty) {
-      await saveCart(_cartItems);
       emit(CartEmpty());
     } else {
-      await saveCart(_cartItems);
       emit(CartUpdated(List.from(_cartItems)));
     }
   }
 
+  // ✅ CLEAN CHECKOUT (ONLY CART RESPONSIBILITY)
   Future<void> checkout() async {
     try {
       if (_cartItems.isEmpty) return;
@@ -108,11 +114,9 @@ class CartCubit extends Cubit<CartState> {
       await Future.delayed(const Duration(seconds: 1));
 
       _cartItems.clear();
-
       await cartBox.put(_cartKey, []);
 
       emit(CartEmpty());
-      emit(CartUpdated([]));
     } catch (e) {
       emit(CartError("Checkout failed"));
     }
@@ -123,7 +127,6 @@ class CartCubit extends Cubit<CartState> {
     emit(CartEmpty());
   }
 
-
   double get subtotal {
     return _cartItems.fold(
       0,
@@ -131,15 +134,9 @@ class CartCubit extends Cubit<CartState> {
     );
   }
 
-  double get vat {
-    return subtotal * 0.05;
-  }
+  double get vat => subtotal * 0.05;
 
-  double get deliveryCharge {
-    return _cartItems.isEmpty ? 0 : 40;
-  }
+  double get deliveryCharge => _cartItems.isEmpty ? 0 : 40;
 
-  double get grandtotal {
-    return subtotal + vat + deliveryCharge;
-  }
+  double get grandtotal => subtotal + vat + deliveryCharge;
 }

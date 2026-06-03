@@ -11,6 +11,7 @@ import 'package:product_list_app/features/auth/presentation/login_screen.dart';
 
 import 'package:product_list_app/features/cart/data/cart_model.dart';
 import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
+import 'package:product_list_app/features/orders/logic/orders_cubit.dart';
 
 import 'package:product_list_app/features/products/data/models/product_model.dart';
 import 'package:product_list_app/features/products/data/repositories/product_repository.dart';
@@ -33,6 +34,7 @@ Future<void> main() async {
   await Hive.openBox('cartBox');
   await Hive.openBox('wishlistBox');
   await Hive.openBox('addressBox');
+  await Hive.openBox('ordersBox');
 
   runApp(const MyApp());
 }
@@ -53,10 +55,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => CartCubit()),
         BlocProvider(create: (context) => WishlistCubit()),
         BlocProvider(create: (context) => AddressCubit()),
+        BlocProvider(create: (context) => OrdersCubit()),
 
         BlocProvider(
-          create: (context) =>
-              AuthCubit(storageService)..checkLoginStatus(),
+          create: (context) => AuthCubit(storageService)..checkLoginStatus(),
         ),
       ],
 
