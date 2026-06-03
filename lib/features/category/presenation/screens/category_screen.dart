@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:product_list_app/features/category/widget/product_card_categ.dart';
 import 'package:product_list_app/features/products/logic/cubit/product_cubit.dart';
 import 'package:product_list_app/features/products/logic/cubit/product_state.dart';
-
-import '../../../products/presentation/widgets/product_card.dart';
+import 'package:product_list_app/features/products/presentation/screens/product_detail_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -18,12 +19,16 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   final TextEditingController searchController = TextEditingController();
 
-  List<String> categories = ["All"];
-
   @override
   void initState() {
     super.initState();
     context.read<ProductCubit>().loadProducts();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -35,11 +40,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         elevation: 0,
         title: const Text(
           "CATEGORIES",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
       ),
 
@@ -54,15 +55,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
           }
 
           if (state is ProductLoaded) {
-            /// build categories from API
-            categories = [
+            /// ✅ safe category generation (NO mutation)
+            final categories = [
               "All",
-              ...state.products.map((e) => e.category).toSet().toList(),
+              ...state.products.map((e) => e.category).toSet(),
             ];
+
+            final products = state.filteredProducts;
 
             return Column(
               children: [
-                /// 🔍 SEARCH + SORT
+                /// SEARCH + SORT
                 Padding(
                   padding: const EdgeInsets.all(10),
                   child: Row(
@@ -117,7 +120,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 Expanded(
                   child: Row(
                     children: [
-                      /// 📂 CATEGORY LEFT PANEL
                       Container(
                         width: 120,
                         color: Colors.grey.shade200,
@@ -127,10 +129,22 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             final category = categories[index];
 
                             return ListTile(
+                              dense: true,
                               selected: selectedCategory == category,
-                              title: Text(category),
+                              title: Text(
+                                category,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: selectedCategory == category
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
                               onTap: () {
-                                setState(() => selectedCategory = category);
+                                setState(() {
+                                  selectedCategory = category;
+                                });
+
                                 context.read<ProductCubit>().filteredCategory(
                                   category,
                                 );
@@ -140,27 +154,36 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                       ),
 
-                      /// 📦 PRODUCT GRID
                       Expanded(
-                        child: state.filteredProducts.isEmpty
+                        child: products.isEmpty
                             ? const Center(child: Text("No products found"))
                             : GridView.builder(
-                                shrinkWrap: true,
                                 padding: const EdgeInsets.all(10),
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,
                                       crossAxisSpacing: 10,
                                       mainAxisSpacing: 10,
-                                      childAspectRatio: 0.68,
+                                      childAspectRatio: 0.72,
                                     ),
-                                itemCount: state.filteredProducts.length,
+                                itemCount: products.length,
                                 itemBuilder: (context, index) {
-                                  final product = state.filteredProducts[index];
+                                  final product = products[index];
 
-                                  return ProductCard(
+                                  return ProductCardCategory(
                                     product: product,
-                                    onTap: () {},
+                                    onTap: () {
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => ProductDetailScreen(
+                                            product: product,
+                                          ),
+                                        ),
+                                      );
+                                      // navigate to details page
+                                    },
                                   );
                                 },
                               ),
