@@ -6,11 +6,16 @@ class AuthCubit extends Cubit<bool> {
   AuthCubit(this.storageService) : super(false);
 
   //LOGIN
-  Future<void> login() async {
-    await storageService.saveBool("isLoggedIn", true);
-     
-    emit(true);
-  }
+  Future<void> login(String email) async {
+  await storageService.saveBool("isLoggedIn", true);
+
+  await storageService.saveString(
+    "currentUser",
+    email,
+  );
+
+  emit(true);
+}
 
   Future<void> logout() async {
     await storageService.removeData("isLoggedIn");

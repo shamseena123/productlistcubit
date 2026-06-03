@@ -23,151 +23,153 @@ class ProductCardCategory extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
 
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: SizedBox(
+          height: double.infinity, // 🔥 LOCK HEIGHT
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// IMAGE (fixed)
+              Stack(
+                children: [
+                  Container(
+                    height: 90,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                      child: Image.network(product.image, fit: BoxFit.contain),
+                    ),
+                  ),
 
-          children: [
-            /// IMAGE SECTION (stable height via AspectRatio)
-            Stack(
-              children: [
-                SizedBox(
-  height: 110,
-  width: double.infinity,
-  child: Container(
-    padding: const EdgeInsets.all(6),
-    decoration: BoxDecoration(
-      color: Colors.grey.shade100,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(12),
-        topRight: Radius.circular(12),
-      ),
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        product.image,
-        fit: BoxFit.contain,
-      ),
-    ),
-  ),
-),
+                  /// Wishlist stays same
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: BlocBuilder<WishlistCubit, WishlistState>(
+                      builder: (context, state) {
+                        final isFav =
+                            state is WishListUpdated &&
+                            state.items.any((e) => e.id == product.id);
 
-                /// WISHLIST ICON
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: BlocBuilder<WishlistCubit, WishlistState>(
-                    builder: (context, state) {
-                      bool isFav = false;
+                        return GestureDetector(
+                          onTap: () {
+                            context.read<WishlistCubit>().toggleWishlist(
+                              product,
+                            );
+                          },
+                          child: CircleAvatar(
+                            radius: 14,
+                            backgroundColor: Colors.white,
+                            child: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              size: 16,
+                              color: const Color(0xFF7C3AED),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
 
-                      if (state is WishListUpdated) {
-                        isFav = state.items.any((e) => e.id == product.id);
-                      }
+              /// CONTENT (FIXED HEIGHT DISTRIBUTION)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// TITLE
+                      Text(
+                        product.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
 
-                      return GestureDetector(
-                        onTap: () {
-                          context.read<WishlistCubit>().toggleWishlist(product);
-                        },
-                        child: CircleAvatar(
-                          radius: 14,
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                            isFav
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            size: 16,
-                            color: const Color(0xFF7C3AED),
+                      const SizedBox(height: 4),
+
+                      /// PRICE
+                      Text(
+                        PriceFormatter.format(product.price),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF16A34A),
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      /// RATING
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.star,
+                            size: 14,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "${product.rating}",
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      // const Spacer(), // 🔥 PUSH BUTTON TO BOTTOM
+                      /// BUTTON (no fixed height)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            context.read<CartCubit>().addToCart(
+                              CartModel(product: product),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7C3AED),
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            "Add",
+                            style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-
-            /// CONTENT (tight + controlled spacing)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                  children: [
-                    /// TITLE
-                    Text(
-                      product.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-
-                    /// PRICE
-                    Text(
-                      PriceFormatter.format(product.price),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF16A34A),
-                      ),
-                    ),
-
-                    /// RATING
-                    Row(
-                      children: [
-                        const Icon(Icons.star,
-                            size: 14, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Text("${product.rating}",
-                            style: const TextStyle(fontSize: 12)),
-                      ],
-                    ),
-
-                    /// BUTTON
-                    SizedBox(
-                      width: double.infinity,
-                      height: 34,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          context.read<CartCubit>().addToCart(
-                            CartModel(product: product),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7C3AED),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Text(
-                          "Add",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

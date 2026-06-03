@@ -59,9 +59,6 @@ class WishlistCubit extends Cubit<WishlistState> {
     }
   }
 
-  // =========================
-  // TOGGLE WISHLIST
-  // =========================
   Future<void> toggleWishlist(ProductModel product) async {
     final exists = _wishlistItems.any((item) => item.id == product.id);
 
@@ -90,9 +87,7 @@ class WishlistCubit extends Cubit<WishlistState> {
     }
   }
 
-  // =========================
-  // REMOVE ITEM
-  // =========================
+  
   Future<void> removeFromlist(int productId) async {
     _wishlistItems.removeWhere((item) => item.id == productId);
 
@@ -100,4 +95,9 @@ class WishlistCubit extends Cubit<WishlistState> {
 
     emit(WishListUpdated(List.from(_wishlistItems)));
   }
+
+  void clearWishlistState() {
+  _wishlistItems.clear();
+  emit(WishListUpdated([]));
+}
 }

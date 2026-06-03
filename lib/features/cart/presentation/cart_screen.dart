@@ -57,7 +57,7 @@ class CartScreen extends StatelessWidget {
                           ),
 
                           title: Text(
-                            "₹${item.product.price} x ${item.quantity}",
+                            "\$${item.product.price} x ${item.quantity}",
                           ),
 
                           trailing: Row(
@@ -104,20 +104,20 @@ class CartScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Subtotal: ₹${cubit.subtotal.toStringAsFixed(2)}"),
+                      Text("Subtotal: \$${cubit.subtotal.toStringAsFixed(2)}"),
                       const SizedBox(height: 5),
 
-                      Text("VAT (5%): ₹${cubit.vat.toStringAsFixed(2)}"),
+                      Text("VAT (5%): \$${cubit.vat.toStringAsFixed(2)}"),
                       const SizedBox(height: 5),
 
                       Text(
-                        "Delivery: ₹${cubit.deliveryCharge.toStringAsFixed(2)}",
+                        "Delivery: \$${cubit.deliveryCharge.toStringAsFixed(2)}",
                       ),
 
                       const Divider(),
 
                       Text(
-                        "Grand Total: ₹${cubit.grandtotal.toStringAsFixed(2)}",
+                        "Grand Total: \$${cubit.grandtotal.toStringAsFixed(2)}",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -137,7 +137,7 @@ class CartScreen extends StatelessWidget {
                                 return AlertDialog(
                                   title: const Text("Confirm Order"),
                                   content: Text(
-                                    "Total Amount: ₹${cubit.grandtotal.toStringAsFixed(2)}",
+                                    "Total Amount: \$${cubit.grandtotal.toStringAsFixed(2)}",
                                   ),
                                   actions: [
                                     TextButton(
@@ -170,7 +170,7 @@ class CartScreen extends StatelessWidget {
                             );
                           },
                           child: Text(
-                            "Checkout (₹${cubit.grandtotal.toStringAsFixed(2)})",
+                            "Checkout (\$${cubit.grandtotal.toStringAsFixed(2)})",
                           ),
                         ),
                       ),

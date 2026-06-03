@@ -61,4 +61,9 @@ class AddressCubit extends Cubit<AddressState> {
 
     emit(AddressLoaded(_addresses));
   }
+
+  void clearAddressState() {
+    _addresses.clear();
+    emit(AddressLoaded([]));
+  }
 }

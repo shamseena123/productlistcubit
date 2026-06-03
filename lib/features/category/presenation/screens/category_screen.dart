@@ -154,40 +154,40 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         ),
                       ),
 
-                      Expanded(
-                        child: products.isEmpty
-                            ? const Center(child: Text("No products found"))
-                            : GridView.builder(
-                                padding: const EdgeInsets.all(10),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 10,
-                                      mainAxisSpacing: 10,
-                                      childAspectRatio: 0.72,
-                                    ),
-                                itemCount: products.length,
-                                itemBuilder: (context, index) {
-                                  final product = products[index];
+                     Expanded(
+  child: products.isEmpty
+      ? const Center(child: Text("No products found"))
+      : GridView.builder(
+          padding: const EdgeInsets.all(10),
+          gridDelegate:
+              const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
+            childAspectRatio: 0.70, // 👈 IMPORTANT CHANGE
+          ),
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index];
 
-                                  return ProductCardCategory(
-                                    product: product,
-                                    onTap: () {
-
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => ProductDetailScreen(
-                                            product: product,
-                                          ),
-                                        ),
-                                      );
-                                      // navigate to details page
-                                    },
-                                  );
-                                },
-                              ),
-                      ),
+            return SizedBox(
+              // height: 280, // 🔥 FORCE FIXED HEIGHT
+              child: ProductCardCategory(
+                product: product,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ProductDetailScreen(product: product),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+)
                     ],
                   ),
                 ),

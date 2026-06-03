@@ -1,26 +1,47 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
+import 'package:product_list_app/core/storage/local_storage_services.dart';
 import 'package:product_list_app/features/cart/data/cart_model.dart';
 import 'package:product_list_app/features/cart/logic/cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
   CartCubit() : super(CartInitial()) {
-    loadCart();
+    initializeUserCart();
   }
 
   void loadCart() {
-    final savedItems = cartBox.get('cartItems');
+    _cartItems.clear();
+    final savedItems = cartBox.get(_cartKey);
+
+    print("LOADING FROM KEY = $_cartKey");
+    print("SAVED ITEMS = $savedItems");
 
     if (savedItems != null) {
       _cartItems.addAll(List<CartModel>.from(savedItems));
       emit(CartUpdated(List.from(_cartItems)));
+    } else {
+      emit(CartEmpty());
     }
   }
 
   final Box cartBox = Hive.box('cartBox');
 
+  final LocalStorageServices storageService = LocalStorageServices();
+
+  String _cartKey = "cartItems";
+
+  Future<void> initializeUserCart() async {
+    final currentUser = await storageService.getString("currentUser");
+
+    _cartKey = "cartItems_$currentUser";
+    print("CURRENT USER = $currentUser");
+    print("CART KEY = $_cartKey");
+
+    loadCart();
+  }
+
   Future<void> saveCart(List<CartModel> items) async {
-    await cartBox.put('cartItems', items);
+    await cartBox.put(_cartKey, items);
   }
 
   final List<CartModel> _cartItems = [];
@@ -80,18 +101,30 @@ class CartCubit extends Cubit<CartState> {
     try {
       if (_cartItems.isEmpty) return;
 
-    
       await Future.delayed(const Duration(seconds: 1));
 
       _cartItems.clear();
 
-      
       await saveCart(_cartItems);
 
-     
       emit(CartEmpty());
     } catch (e) {
       emit(CartError("Checkout failed"));
+    }
+  }
+
+  void clearCartState() {
+    print("CLEAR CART STATE CALLED");
+    print("ITEMS BEFORE CLEAR = ${_cartItems.length}");
+    _cartItems.clear();
+    emit(CartEmpty());
+  }
+
+  Future<void> debugCartKeys() async {
+    print("ALL KEYS IN CART BOX");
+
+    for (var key in cartBox.keys) {
+      print("$key = ${cartBox.get(key)}");
     }
   }
 

@@ -5,6 +5,8 @@ import 'package:product_list_app/features/address/data/logic/address_cubit.dart'
 import 'package:product_list_app/features/address/presentation/screens/address_screen.dart';
 
 import 'package:product_list_app/features/auth/logic/cubit/auth_cubit.dart';
+import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
+import 'package:product_list_app/features/whislist/logic/wishlist_cubit.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -161,9 +163,16 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-                onTap: () async {
-                  await context.read<AuthCubit>().logout();
-                },
+               onTap: () async {
+  context.read<CartCubit>().clearCartState();
+
+  context.read<WishlistCubit>().clearWishlistState();
+
+   context.read<AddressCubit>().clearAddressState();
+
+
+  await context.read<AuthCubit>().logout();
+},
               ),
             ),
           ],
