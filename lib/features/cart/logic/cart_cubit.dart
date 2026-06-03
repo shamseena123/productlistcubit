@@ -13,10 +13,12 @@ class CartCubit extends Cubit<CartState> {
     _cartItems.clear();
     final savedItems = cartBox.get(_cartKey);
 
-    
-
     if (savedItems != null) {
-      _cartItems.addAll(List<CartModel>.from(savedItems));
+      final list = (savedItems as List)
+          .map((e) => CartModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+
+      _cartItems.addAll(list);
       emit(CartUpdated(List.from(_cartItems)));
     } else {
       emit(CartEmpty());
@@ -32,8 +34,6 @@ class CartCubit extends Cubit<CartState> {
   Future<void> initializeUserCart() async {
     final currentUser = await storageService.getString("currentUser");
 
-   
-
     if (currentUser == null) {
       emit(CartEmpty());
       return;
@@ -45,7 +45,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> saveCart(List<CartModel> items) async {
-    await cartBox.put(_cartKey, items);
+    await cartBox.put(_cartKey, items.map((e) => e.toJson()).toList());
   }
 
   final List<CartModel> _cartItems = [];
@@ -109,24 +109,20 @@ class CartCubit extends Cubit<CartState> {
 
       _cartItems.clear();
 
-      await saveCart(_cartItems);
+      await cartBox.put(_cartKey, []);
 
       emit(CartEmpty());
+      emit(CartUpdated([]));
     } catch (e) {
       emit(CartError("Checkout failed"));
     }
   }
 
   void clearCartState() {
-    
     _cartItems.clear();
     emit(CartEmpty());
   }
 
-  
-    
-
-    
 
   double get subtotal {
     return _cartItems.fold(

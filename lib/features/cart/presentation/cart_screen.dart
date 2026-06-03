@@ -25,6 +25,9 @@ class CartScreen extends StatelessWidget {
 
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
+          final cubit = context.read<CartCubit>();
+
+          // ✅ FIX 3: SAFETY GUARD (VERY IMPORTANT)
           if (state is CartEmpty || state is CartInitial) {
             return const Center(
               child: Text(
@@ -36,7 +39,16 @@ class CartScreen extends StatelessWidget {
 
           if (state is CartUpdated) {
             final items = state.items;
-            final cubit = context.read<CartCubit>();
+
+            // ✅ EXTRA SAFETY (prevents ghost UI issue)
+            if (items.isEmpty) {
+              return const Center(
+                child: Text(
+                  "Your Cart is Empty 🛒",
+                  style: TextStyle(fontSize: 16),
+                ),
+              );
+            }
 
             return Column(
               children: [
@@ -126,7 +138,7 @@ class CartScreen extends StatelessWidget {
 
                       const SizedBox(height: 10),
 
-                      /// 🧾 CHECKOUT BUTTON (WITH CONFIRM DIALOG)
+                      /// 🧾 CHECKOUT BUTTON
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

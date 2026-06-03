@@ -13,16 +13,12 @@ class CartModel {
 
   CartModel({required this.product, this.quantity = 1});
 
-  // =========================
-  // JSON ENCODE
-  // =========================
+  
   Map<String, dynamic> toJson() {
     return {'product': product.toJson(), 'quantity': quantity};
   }
 
-  // =========================
-  // JSON DECODE
-  // =========================
+  
   factory CartModel.fromJson(Map<String, dynamic> json) {
     return CartModel(
       product: ProductModel.fromJson(json['product']),
