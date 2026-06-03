@@ -13,8 +13,7 @@ class CartCubit extends Cubit<CartState> {
     _cartItems.clear();
     final savedItems = cartBox.get(_cartKey);
 
-    print("LOADING FROM KEY = $_cartKey");
-    print("SAVED ITEMS = $savedItems");
+    
 
     if (savedItems != null) {
       _cartItems.addAll(List<CartModel>.from(savedItems));
@@ -33,9 +32,14 @@ class CartCubit extends Cubit<CartState> {
   Future<void> initializeUserCart() async {
     final currentUser = await storageService.getString("currentUser");
 
+   
+
+    if (currentUser == null) {
+      emit(CartEmpty());
+      return;
+    }
+
     _cartKey = "cartItems_$currentUser";
-    print("CURRENT USER = $currentUser");
-    print("CART KEY = $_cartKey");
 
     loadCart();
   }
@@ -114,19 +118,15 @@ class CartCubit extends Cubit<CartState> {
   }
 
   void clearCartState() {
-    print("CLEAR CART STATE CALLED");
-    print("ITEMS BEFORE CLEAR = ${_cartItems.length}");
+    
     _cartItems.clear();
     emit(CartEmpty());
   }
 
-  Future<void> debugCartKeys() async {
-    print("ALL KEYS IN CART BOX");
+  
+    
 
-    for (var key in cartBox.keys) {
-      print("$key = ${cartBox.get(key)}");
-    }
-  }
+    
 
   double get subtotal {
     return _cartItems.fold(

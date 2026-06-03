@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:product_list_app/features/auth/logic/cubit/auth_cubit.dart';
-import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -100,14 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
 
                   await context.read<AuthCubit>().login(email);
-
-                  print("LOGIN SUCCESS");
-
-                  await context.read<CartCubit>().initializeUserCart();
-
-                  print("CART RELOAD CALLED");
-
-                  await context.read<CartCubit>().debugCartKeys();
                 },
                 child: const Text("Login"),
               ),

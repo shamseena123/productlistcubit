@@ -7,18 +7,18 @@ class AuthCubit extends Cubit<bool> {
 
   //LOGIN
   Future<void> login(String email) async {
-  await storageService.saveBool("isLoggedIn", true);
+    await storageService.saveBool("isLoggedIn", true);
 
-  await storageService.saveString(
-    "currentUser",
-    email,
-  );
+    await storageService.saveString("currentUser", email);
 
-  emit(true);
-}
+    print("SAVED CURRENT USER = $email");
+
+    emit(true);
+  }
 
   Future<void> logout() async {
     await storageService.removeData("isLoggedIn");
+    await storageService.removeData("currentUser");
     emit(false);
   }
 
