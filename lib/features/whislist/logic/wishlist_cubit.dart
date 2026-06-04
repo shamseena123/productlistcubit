@@ -2,20 +2,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:product_list_app/features/products/data/models/product_model.dart';
 import 'package:product_list_app/features/whislist/logic/wishlist_state.dart';
-
+import 'package:product_list_app/core/storage/local_storage_services.dart';
 class WishlistCubit extends Cubit<WishlistState> {
   WishlistCubit() : super(WishListInitial()) {
-    loadWishlist();
-  }
+  initializeUserWishlist();
+}
 
   final Box wishlistBox = Hive.box('wishlistBox');
-  final List<ProductModel> _wishlistItems = [];
+final LocalStorageServices storageService = LocalStorageServices();
+
+final List<ProductModel> _wishlistItems = [];
+
+String _wishlistKey = "wishlistItems";
+
+Future<void> initializeUserWishlist() async {
+  final currentUser =
+      await storageService.getString("currentUser");
+
+  if (currentUser == null) {
+    _wishlistItems.clear();
+    emit(WishListUpdated([]));
+    return;
+  }
+
+  _wishlistKey = "wishlistItems$currentUser";
+
+  loadWishlist();
+}
+
 
   // =========================
   // LOAD FROM HIVE (DECODE)
   // =========================
   void loadWishlist() {
-    final savedItems = wishlistBox.get('wishlistItems');
+    final savedItems = wishlistBox.get(_wishlistKey);
 
     if (savedItems != null) {
       final List list = savedItems;
@@ -41,7 +61,7 @@ class WishlistCubit extends Cubit<WishlistState> {
   Future<void> saveWishlist() async {
     final data = _wishlistItems.map((item) => item.toJson()).toList();
 
-    await wishlistBox.put('wishlistItems', data);
+    await wishlistBox.put(_wishlistKey, data);
   }
 
   // =========================

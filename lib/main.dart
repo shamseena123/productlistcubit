@@ -72,6 +72,7 @@ class MyApp extends StatelessWidget {
           } else {
             // 🔥 LOGIN RESTORE (IMPORTANT FIX)
             await context.read<CartCubit>().initializeUserCart();
+            await context.read<WishlistCubit>().initializeUserWishlist();
           }
         },
 
