@@ -31,9 +31,7 @@ Future<void> initializeUserWishlist() async {
 }
 
 
-  // =========================
-  // LOAD FROM HIVE (DECODE)
-  // =========================
+  
   void loadWishlist() {
     final savedItems = wishlistBox.get(_wishlistKey);
 
@@ -55,18 +53,13 @@ Future<void> initializeUserWishlist() async {
     }
   }
 
-  // =========================
-  // SAVE TO HIVE (ENCODE)
-  // =========================
+ 
   Future<void> saveWishlist() async {
     final data = _wishlistItems.map((item) => item.toJson()).toList();
 
     await wishlistBox.put(_wishlistKey, data);
   }
 
-  // =========================
-  // ADD ITEM
-  // =========================
   Future<void> addToWishlist(ProductModel product) async {
     final exists = _wishlistItems.any((item) => item.id == product.id);
 

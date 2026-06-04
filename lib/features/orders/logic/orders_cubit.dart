@@ -3,15 +3,15 @@ import 'package:hive/hive.dart';
 import '../data/order_model.dart';
 
 class OrdersCubit extends Cubit<List<OrderModel>> {
-  OrdersCubit() : super([]) {}
+  OrdersCubit() : super([]);
 
   final Box ordersBox = Hive.box('ordersBox');
 
   void loadOrders(String email) {
     final data = ordersBox.get('orders_list_$email');
 
-    print("Email:$email");
-    print("DATA FROM HIVE:$data");
+    // print("Email:$email");
+    // print("DATA FROM HIVE:$data");
 
     if (data == null || data is! List) {
       emit([]);

@@ -14,7 +14,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final LocalStorageServices storageService = LocalStorageServices();
   String? emailError;
   String? passwordError;
@@ -108,8 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   await storageService.saveString("currentUser", email);
 
-context.read<AddressCubit>().initializeUserAddresses();
-context.read<OrdersCubit>().loadOrders(email);
+                  context.read<AddressCubit>().initializeUserAddresses();
+                  context.read<OrdersCubit>().loadOrders(email);
                 },
                 child: const Text("Login"),
               ),

@@ -40,11 +40,11 @@ class AddressCubit extends Cubit<AddressState> {
     if (_initialized) return;
     _initialized = true;
 
-    print("initializeUserAddresses CALLED");
+    // print("initializeUserAddresses CALLED");
 
     final currentUser = await storageService.getString("currentUser");
 
-    print("Current User: $currentUser");
+    // print("Current User: $currentUser");
 
     if (currentUser == null) {
       _addresses = [];
@@ -63,8 +63,8 @@ class AddressCubit extends Cubit<AddressState> {
 
     final data = box.get(_addressKey);
 
-    print("Address Key: $_addressKey");
-    print("Loaded Data: $data");
+    // print("Address Key: $_addressKey");
+    // print("Loaded Data: $data");
 
     _addresses = [];
 

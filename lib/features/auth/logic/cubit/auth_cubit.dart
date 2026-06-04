@@ -11,7 +11,7 @@ class AuthCubit extends Cubit<bool> {
 
     await storageService.saveString("currentUser", email);
 
-    print("SAVED CURRENT USER = $email");
+    // print("SAVED CURRENT USER = $email");
 
     emit(true);
   }

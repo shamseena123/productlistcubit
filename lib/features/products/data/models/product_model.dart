@@ -35,9 +35,7 @@ class ProductModel {
     required this.ratingCount,
   });
 
-  // =========================
-  // JSON DECODE (SAFE)
-  // =========================
+  
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final ratingData = json['rating'];
 
@@ -56,9 +54,7 @@ class ProductModel {
     );
   }
 
-  // =========================
-  // JSON ENCODE
-  // =========================
+  
   Map<String, dynamic> toJson() {
     return {
       'id': id,

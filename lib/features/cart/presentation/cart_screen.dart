@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
 import 'package:product_list_app/features/cart/logic/cart_state.dart';
-import 'package:product_list_app/features/orders/data/order_model.dart';
-import 'package:product_list_app/features/orders/logic/orders_cubit.dart';
-
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -163,7 +160,7 @@ class CartScreen extends StatelessWidget {
                                     ),
                                     ElevatedButton(
                                       onPressed: () async {
-                                        print("CONFIRM CLICKED");
+                                        // print("CONFIRM CLICKED");
 
                                         final messenger = ScaffoldMessenger.of(
                                           context,
@@ -172,17 +169,8 @@ class CartScreen extends StatelessWidget {
 
                                         final cartCubit = context
                                             .read<CartCubit>();
-                                        final ordersCubit = context
-                                            .read<OrdersCubit>();
-
-                                        final order = OrderModel(
-                                          items: cartCubit.cartItems,
-                                          totalPrice: cartCubit.grandtotal,
-                                          dateTime: DateTime.now(),
-                                        );
 
                                         try {
-                                          
                                           await cartCubit.checkout(context);
 
                                           navigator
@@ -195,10 +183,8 @@ class CartScreen extends StatelessWidget {
                                               ),
                                             ),
                                           );
-
-                                          
                                         } catch (e) {
-                                          print("CHECKOUT ERROR: $e");
+                                          // print("CHECKOUT ERROR: $e");
 
                                           messenger.showSnackBar(
                                             const SnackBar(

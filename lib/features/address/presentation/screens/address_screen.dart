@@ -5,7 +5,7 @@ import '../../data/logic/address_cubit.dart';
 import '../../data/models/address_model.dart';
 
 class AddressScreen extends StatefulWidget {
-  AddressScreen({super.key});
+  const AddressScreen({super.key});
 
   @override
   State<AddressScreen> createState() => _AddressScreenState();
