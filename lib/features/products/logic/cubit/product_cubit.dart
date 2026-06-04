@@ -15,7 +15,7 @@ class ProductCubit extends Cubit<ProductState> {
   String _selectedSort = "None";
   String _searchQuery = "";
 
-  /// LOAD PRODUCTS
+ 
   Future<void> loadProducts() async {
     emit(ProductLoading());
 
@@ -31,8 +31,6 @@ class ProductCubit extends Cubit<ProductState> {
       }
     }
   }
-
-  /// CORE FILTER ENGINE (CATEGORY + SEARCH + SORT)
   void _applyFilters() {
     List<ProductModel> filtered = List.from(_allProducts);
 
@@ -43,7 +41,6 @@ class ProductCubit extends Cubit<ProductState> {
           .toList();
     }
 
-    /// SEARCH FILTER
     if (_searchQuery.isNotEmpty) {
       filtered = filtered
           .where(

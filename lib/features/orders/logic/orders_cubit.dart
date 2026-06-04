@@ -3,32 +3,30 @@ import 'package:hive/hive.dart';
 import '../data/order_model.dart';
 
 class OrdersCubit extends Cubit<List<OrderModel>> {
-  OrdersCubit() : super([]) {
-    loadOrders();
-  }
+  OrdersCubit() : super([]) {}
 
   final Box ordersBox = Hive.box('ordersBox');
 
- void loadOrders() {
-  final data = ordersBox.get('orders_list');
+  void loadOrders(String email) {
+    final data = ordersBox.get('orders_list_$email');
 
-  if (data == null || data is! List) {
-    emit([]);
-    return;
+    print("Email:$email");
+    print("DATA FROM HIVE:$data");
+
+    if (data == null || data is! List) {
+      emit([]);
+      return;
+    }
+
+    final orders = data
+        .map((e) => OrderModel.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+
+    emit(orders.reversed.toList());
   }
 
-  final orders = data
-      .map(
-        (e) => OrderModel.fromJson(
-          Map<String, dynamic>.from(e),
-        ),
-      )
-      .toList();
-
-  emit(orders.reversed.toList());
-}
-  Future<void> addOrder(OrderModel order) async {
-    final data = ordersBox.get('orders_list');
+  Future<void> addOrder(String email, OrderModel order) async {
+    final data = ordersBox.get('orders_list_$email');
 
     List existing = data ?? [];
 
@@ -37,9 +35,8 @@ class OrdersCubit extends Cubit<List<OrderModel>> {
       order.toJson(), // 🔥 ONLY JSON
     ];
 
-    await ordersBox.put('orders_list', updated);
-    print("ORDER SAVED: ${order.toJson()}");
+    await ordersBox.put('orders_list_$email', updated);
 
-    loadOrders();
+    loadOrders(email);
   }
 }

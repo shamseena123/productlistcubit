@@ -17,7 +17,7 @@ class CustomErrorWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(message),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           ElevatedButton(onPressed: onRetry, child: const Text("Retry")),
         ],
       ),

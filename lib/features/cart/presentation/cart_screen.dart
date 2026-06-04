@@ -4,7 +4,7 @@ import 'package:product_list_app/features/cart/logic/cart_cubit.dart';
 import 'package:product_list_app/features/cart/logic/cart_state.dart';
 import 'package:product_list_app/features/orders/data/order_model.dart';
 import 'package:product_list_app/features/orders/logic/orders_cubit.dart';
-import 'package:product_list_app/features/orders/presentation/order_screen.dart';
+
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -182,8 +182,8 @@ class CartScreen extends StatelessWidget {
                                         );
 
                                         try {
-                                          await ordersCubit.addOrder(order);
-                                          await cartCubit.checkout();
+                                          
+                                          await cartCubit.checkout(context);
 
                                           navigator
                                               .pop(); // close dialog AFTER logic
@@ -196,12 +196,7 @@ class CartScreen extends StatelessWidget {
                                             ),
                                           );
 
-                                          navigator.push(
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  const OrdersScreen(),
-                                            ),
-                                          );
+                                          
                                         } catch (e) {
                                           print("CHECKOUT ERROR: $e");
 

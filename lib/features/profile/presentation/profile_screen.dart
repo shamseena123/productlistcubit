@@ -5,10 +5,33 @@ import 'package:product_list_app/features/address/data/logic/address_cubit.dart'
 import 'package:product_list_app/features/address/presentation/screens/address_screen.dart';
 
 import 'package:product_list_app/features/auth/logic/cubit/auth_cubit.dart';
+import 'package:product_list_app/features/orders/presentation/order_screen.dart';
 
-
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String email = "";
+
+  @override
+  void initState() {
+    super.initState();
+    loadEmail();
+  }
+
+  Future<void> loadEmail() async {
+    final storage = context.read<AuthCubit>().storageService;
+
+    final savedEmail = await storage.getString("currentUser");
+
+    setState(() {
+      email = savedEmail ?? "";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +57,6 @@ class ProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-            /// 👤 PROFILE HEADER
             Row(
               children: [
                 const CircleAvatar(
@@ -47,9 +69,9 @@ class ProfileScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
 
-                  children: const [
-                    Text(
-                      "Welcome User",
+                  children: [
+                    const Text(
+                      "Welcome",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -58,10 +80,7 @@ class ProfileScreen extends StatelessWidget {
 
                     SizedBox(height: 5),
 
-                    Text(
-                      "user@email.com",
-                      style: TextStyle(color: Colors.grey),
-                    ),
+                    Text(email, style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ],
@@ -69,7 +88,6 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            /// ➕ ADD ADDRESS
             Card(
               child: ListTile(
                 leading: const Icon(Icons.add_location_alt),
@@ -89,7 +107,6 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 15),
 
-            /// 📍 SAVED ADDRESS
             BlocBuilder<AddressCubit, AddressState>(
               builder: (context, state) {
                 if (state is AddressLoaded && state.addresses.isNotEmpty) {
@@ -149,7 +166,30 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            /// 🚪 LOGOUT
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.shopping_bag),
+
+                title: const Text(
+                  "My orders",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                onTap: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => OrdersScreen()),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            ///  LOGOUT
             Card(
               child: ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
@@ -162,11 +202,9 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-               onTap: () async {
- 
-
-  await context.read<AuthCubit>().logout();
-},
+                onTap: () async {
+                  await context.read<AuthCubit>().logout();
+                },
               ),
             ),
           ],

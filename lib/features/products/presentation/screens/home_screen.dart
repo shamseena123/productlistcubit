@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 14),
 
-                    /// CATEGORY CHIPS
+                    
                     SizedBox(
                       height: 50,
                       child: ListView(
