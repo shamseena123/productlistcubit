@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
-
 import '../models/address_model.dart';
 import 'package:product_list_app/core/storage/local_storage_services.dart';
 
@@ -17,20 +16,30 @@ class AddressLoaded extends AddressState {
 
 /// CUBIT
 class AddressCubit extends Cubit<AddressState> {
-  AddressCubit() : super(AddressInitial()) {
-    initializeUserAddresses();
-  }
+  AddressCubit() : super(AddressInitial());
 
   static const String boxName = 'addressBox';
   final LocalStorageServices storageService = LocalStorageServices();
 
   String _addressKey = 'saved_addresses';
-
   List<AddressModel> _addresses = [];
 
   List<AddressModel> get addresses => _addresses;
 
+  bool _initialized = false;
+
+  /// RESET WHEN USER CHANGES (IMPORTANT)
+  void reset() {
+    _initialized = false;
+    _addresses.clear();
+    emit(AddressLoaded([]));
+  }
+
+  /// INIT USER ADDRESS
   Future<void> initializeUserAddresses() async {
+    if (_initialized) return;
+    _initialized = true;
+
     print("initializeUserAddresses CALLED");
 
     final currentUser = await storageService.getString("currentUser");
@@ -38,52 +47,46 @@ class AddressCubit extends Cubit<AddressState> {
     print("Current User: $currentUser");
 
     if (currentUser == null) {
-      _addresses.clear();
+      _addresses = [];
       emit(AddressLoaded([]));
       return;
     }
 
-    _addressKey = 'saved_addresses_$currentUser';
+    _addressKey = 'saved_addresses${currentUser.trim()}';
 
     await loadAddresses();
   }
 
-  /// LOAD ALL ADDRESSES
+  /// LOAD ADDRESSES
   Future<void> loadAddresses() async {
     final box = Hive.box(boxName);
-    print("ALL KEYS = ${box.keys.toList()}");
 
     final data = box.get(_addressKey);
 
     print("Address Key: $_addressKey");
     print("Loaded Data: $data");
-    print("Loaded data type:${data.runtimeType}");
 
-    _addresses.clear();
+    _addresses = [];
 
     if (data != null) {
-      _addresses.addAll(List<AddressModel>.from(data));
+      _addresses = List<AddressModel>.from(data);
     }
 
     emit(AddressLoaded(List.from(_addresses)));
   }
 
-  /// ADD ADDRESS
+  /// SAVE ADDRESS
   Future<void> saveAddress(AddressModel address) async {
-    print("SAVE ADDRESS CALLED");
     final box = Hive.box(boxName);
 
     _addresses.add(address);
 
-    print("SAVING TO KEY: $_addressKey");
-    print("ADDRESS COUNT: ${_addresses.length}");
-    print("ADDRESS LIST:$_addresses");
+    await box.put(
+      _addressKey,
+      List<AddressModel>.from(_addresses),
+    );
 
-    await box.put(_addressKey, _addresses);
-
-    print("AFTER SAVE =${box.get(_addressKey)}");
-
-    emit(AddressLoaded(_addresses));
+    emit(AddressLoaded(List.from(_addresses)));
   }
 
   /// DELETE ADDRESS
@@ -92,13 +95,15 @@ class AddressCubit extends Cubit<AddressState> {
 
     _addresses.removeAt(index);
 
-    await box.put(_addressKey, _addresses);
+    await box.put(
+      _addressKey,
+      List<AddressModel>.from(_addresses),
+    );
 
-    emit(AddressLoaded(_addresses));
+    emit(AddressLoaded(List.from(_addresses)));
   }
 
   void clearAddressState() {
-    print("CLEAR ADDRESS STATE CALLED");
     _addresses.clear();
     emit(AddressLoaded([]));
   }

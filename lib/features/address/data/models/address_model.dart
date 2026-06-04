@@ -26,4 +26,5 @@ class AddressModel {
     required this.city,
     required this.pincode,
   });
+  
 }

@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageServices {
+  LocalStorageServices();
   //SAVE BOOL
 
   Future<void> saveBool(String key, bool value) async {

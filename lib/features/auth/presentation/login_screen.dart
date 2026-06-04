@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:product_list_app/core/storage/local_storage_services.dart';
+import 'package:product_list_app/features/address/data/logic/address_cubit.dart';
 
 import 'package:product_list_app/features/auth/logic/cubit/auth_cubit.dart';
+import 'package:product_list_app/features/orders/logic/orders_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,8 +14,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final LocalStorageServices storageService = LocalStorageServices();
   String? emailError;
   String? passwordError;
+
   final emailController = TextEditingController();
 
   final passwordContoller = TextEditingController();
@@ -99,6 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
 
                   await context.read<AuthCubit>().login(email);
+
+                  await storageService.saveString("currentUser", email);
+
+context.read<AddressCubit>().initializeUserAddresses();
+context.read<OrdersCubit>().loadOrders(email);
                 },
                 child: const Text("Login"),
               ),

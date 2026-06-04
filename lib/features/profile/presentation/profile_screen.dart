@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:product_list_app/core/storage/local_storage_services.dart';
 
 import 'package:product_list_app/features/address/data/logic/address_cubit.dart';
 import 'package:product_list_app/features/address/presentation/screens/address_screen.dart';
@@ -203,8 +204,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
                 onTap: () async {
-                  await context.read<AuthCubit>().logout();
-                },
+                  final storage = LocalStorageServices();
+  await context.read<AuthCubit>().logout();
+
+ 
+  await storage.removeData("currentUser");
+
+  context.read<AddressCubit>().reset();
+}
               ),
             ),
           ],
